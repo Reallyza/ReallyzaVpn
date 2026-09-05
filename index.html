@@ -1,0 +1,250 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Текущее время · Екатеринбург</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0b1a2e 0%, #1b2f44 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;
+            padding: 1.5rem;
+            margin: 0;
+        }
+
+        .clock-card {
+            background: rgba(22, 36, 52, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 3.5rem;
+            padding: 3rem 2.8rem;
+            box-shadow: 0 30px 45px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+            text-align: center;
+            transition: all 0.2s ease;
+            width: 100%;
+            max-width: 700px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .city-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(70, 130, 180, 0.25);
+            border: 1px solid rgba(140, 190, 240, 0.3);
+            padding: 0.6rem 1.8rem;
+            border-radius: 60px;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .city-icon {
+            font-size: 1.8rem;
+            line-height: 1;
+        }
+
+        .city-name {
+            color: #dfeef7;
+            font-weight: 600;
+            font-size: 1.7rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.4);
+        }
+
+        .time-display {
+            font-size: clamp(3.2rem, 12vw, 6rem);
+            font-weight: 700;
+            color: #f0f9ff;
+            line-height: 1.1;
+            letter-spacing: 0.02em;
+            text-shadow: 0 0 15px rgba(100, 180, 255, 0.45), 0 4px 12px rgba(0, 0, 0, 0.6);
+            margin: 0.5rem 0 0.5rem;
+            font-variant-numeric: tabular-nums;
+            word-break: break-word;
+        }
+
+        .timezone-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem 1.5rem;
+            margin: 1.8rem 0 1.5rem;
+            color: #b6d3e8;
+            font-weight: 500;
+            font-size: 1.2rem;
+            background: rgba(10, 25, 40, 0.5);
+            padding: 0.9rem 1.8rem;
+            border-radius: 50px;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        .timezone-abbr {
+            background: #2c4b6b;
+            color: white;
+            padding: 0.15rem 0.8rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.03em;
+        }
+
+        .utc-offset {
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .date-info {
+            color: #cbdbe9;
+            font-size: 1.4rem;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 0.4rem;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .meta-note {
+            color: #8aaac2;
+            font-size: 0.95rem;
+            margin-top: 2rem;
+            letter-spacing: 0.03em;
+            opacity: 0.75;
+        }
+
+        .highlight {
+            color: #aad0ff;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            .clock-card {
+                padding: 2rem 1.5rem;
+                border-radius: 2.5rem;
+            }
+            .timezone-row {
+                font-size: 1rem;
+                padding: 0.7rem 1rem;
+            }
+            .date-info {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="clock-card" role="timer" aria-live="polite" aria-label="Текущее время в Екатеринбурге">
+        <div class="city-badge">
+            <span class="city-icon">🏔️</span>
+            <span class="city-name">Екатеринбург</span>
+        </div>
+
+        <div class="time-display" id="timeEkaterinburg">--:--:--</div>
+
+        <div class="timezone-row">
+            <span class="timezone-abbr">ЕКБ · YEKT</span>
+            <span class="utc-offset">UTC+5</span>
+        </div>
+
+        <div class="date-info" id="dateEkaterinburg">
+            загрузка даты...
+        </div>
+
+        <div class="meta-note">
+            <span class="highlight">Свердловская область</span> · без перехода на летнее время
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Устанавливаем часовой пояс для Екатеринбурга: Asia/Yekaterinburg (UTC+5, без DST)
+            const timeZone = 'Asia/Yekaterinburg';
+            
+            // Опции для форматирования времени
+            const timeOptions = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false,
+                timeZone: timeZone
+            };
+
+            // Опции для форматирования даты
+            const dateOptions = {
+                weekday: 'long',      // понедельник
+                day: 'numeric',       // 1
+                month: 'long',        // января
+                year: 'numeric',      // 2025
+                timeZone: timeZone
+            };
+
+            // Получаем элементы DOM
+            const timeElement = document.getElementById('timeEkaterinburg');
+            const dateElement = document.getElementById('dateEkaterinburg');
+
+            // Функция обновления отображения
+            function updateEkaterinburgTime() {
+                try {
+                    const now = new Date();
+                    
+                    // Форматируем время с указанием часового пояса
+                    const timeString = new Intl.DateTimeFormat('ru-RU', timeOptions).format(now);
+                    
+                    // Форматируем дату (в родительном падеже для месяца и дня недели)
+                    // но Intl выдаст именительный падеж, поэтому немного корректируем окончания
+                    let dateString = new Intl.DateTimeFormat('ru-RU', dateOptions).format(now);
+                    
+                    // Улучшаем склонение: "понедельник, 9 сентября" -> "понедельник, 9 сентября 2025"
+                    // (стандартный формат уже содержит год, но если год не нужен, можно убрать, но оставим как есть)
+                    
+                    // Дополнительно можно преобразовать месяц в родительный падеж для красоты:
+                    // но стандартный Intl даёт "9 сентября 2025 г." – это уже корректно.
+                    // Оставим как есть, просто уберём возможную точку после "г" если есть
+                    dateString = dateString.replace(/\s*г\.?\s*$/i, '');
+                    
+                    // Записываем в элементы
+                    timeElement.textContent = timeString;
+                    dateElement.textContent = dateString;
+                } catch (error) {
+                    // Запасной вариант, если что-то пойдёт не так (например, старый браузер)
+                    timeElement.textContent = '--:--:--';
+                    dateElement.textContent = 'не удалось получить дату';
+                    console.warn('Ошибка форматирования времени/даты:', error);
+                }
+            }
+
+            // Немедленное обновление
+            updateEkaterinburgTime();
+
+            // Обновляем каждую секунду (для секунд)
+            setInterval(updateEkaterinburgTime, 1000);
+
+            // Дополнительно: обновим при загрузке, если вкладка была в фоне
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    updateEkaterinburgTime();
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
+```
